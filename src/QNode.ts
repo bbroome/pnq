@@ -2,22 +2,42 @@ export default class QNode {
   public parent: QNode | undefined
   public prev: QNode | undefined
   public next: QNode | undefined
-  public children: QNode[] | undefined
-  public textPre: string | undefined
-  public textPost: string | undefined
+  public firstChild: QNode | undefined
 
-  public get text(): string {
-    return this.textPre + this.innerText() + this.textPost
+  constructor(
+    public readonly name: string,
+    private textContent?: string | undefined,
+    private attributes?: { [name: string]: string } | undefined
+  ) {}
+
+  public get type() {
+    return this.textContent ? this.name : 'tag'
   }
 
-  constructor(public readonly name: string) {}
+  public get attrs() {
+    return this.attributes || {}
+  }
 
-  private innerText(): string {
+  public get children() {
+    const kids: QNode[] = []
+    let kiddo = this.firstChild
+    while (kiddo) {
+      kids.push(kiddo)
+      kiddo = kiddo.next
+    }
+    return kids
+  }
+
+  public get text(): string {
+    return this.textContent || this.childText()
+  }
+
+  private childText(): string {
     let acc = ''
-    if (this.children.length) {
-      this.children.forEach(child => {
-        acc += child.text
-      })
+    let child = this.firstChild
+    while (child) {
+      acc += child.text
+      child = child.next
     }
     return acc
   }
